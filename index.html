@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Castillo de Marcos | Catálogo y Pedidos</title>
+    <!-- Tailwind CSS v4 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jsPDF para reporte PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <!-- Chart.js para Gráficas Semanales -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body { font-family: 'Outfit', sans-serif; }
+        
+        /* Ocultar insignia flotante de Netlify por CSS */
+        a[href*="netlify.com/?utm_source=badge"], 
+        a[href*="netlify.com/features/hosting"],
+        div:has(> a[href*="netlify.com"]) {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            height: 0 !important;
+            width: 0 !important;
+            overflow: hidden !important;
+        }
+
+        /* Fondo de rayos solares animados (estilo del logo) */
+        .sunburst-bg {
+            background: repeating-conic-gradient(#f97316 0deg 15deg, #09090b 15deg 30deg);
+        }
+        @keyframes spin-rays {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .animate-spin-rays {
+            animation: spin-rays 40s linear infinite;
+        }
+
+        @keyframes float-crown {
+            0%, 100% { transform: translateY(0px) rotate(-5deg); }
+            50% { transform: translateY(-6px) rotate(0deg); }
+        }
+        .animate-crown {
+            animation: float-crown 3s ease-in-out infinite;
+        }
+
+        @keyframes scale-in {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-scale-in {
+            animation: scale-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #09090b; }
+        ::-webkit-scrollbar-thumb { background: #f97316; border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-stone-950 text-stone-100 h-full overflow-x-hidden antialiased">
+
+    <!-- ==================================================== -->
+    <!-- PANTALLA DE INICIO (SPLASH SCREEN CON RAYOS Y LOGO) -->
+    <!-- ==================================================== -->
+    <div id="splashScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-stone-950 px-4 transition-opacity duration-700 overflow-hidden">
+        
+        <!-- Rayos solares giratorios de fondo -->
+        <div class="absolute inset-0 sunburst-bg animate-spin-rays opacity-25 scale-150 pointer-events-none"></div>
+        <div class="absolute inset-0 bg-stone-950/70 backdrop-blur-sm pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col items-center max-w-md text-center animate-scale-in">
+            
+            <!-- Emblema Central del Logotipo Animado -->
+            <div class="relative w-44 h-44 mb-6 flex items-center justify-center">
+                <!-- Anillo exterior naranja brillante -->
+                <div class="absolute inset-0 rounded-full border-4 border-orange-500 shadow-[0_0_30px_rgba(249,115,22,0.5)]"></div>
+                
+                <!-- Círculo interior negro -->
+                <div class="absolute inset-2 rounded-full bg-stone-950 flex items-center justify-center overflow-hidden">
+                    
+                    <!-- SVG Vectorial Exacto del Logotipo (Corona + Letra M Castillo) -->
+                    <svg viewBox="0 0 200 200" class="w-32 h-32 drop-shadow-xl">
+                        <!-- Corona Naranja con animación flotante -->
+                        <g class="animate-crown origin-bottom">
+                            <path d="M45,75 L58,45 L72,65 L88,40 L102,65 L115,45 L128,75 Z" fill="#f97316" stroke="#ea580c" stroke-width="3" stroke-linejoin="round"/>
+                        </g>
+                        <!-- Letra M Estilo Castillo (Blanco puro) -->
+                        <path d="M48,82 H152 V152 H128 V118 H108 V152 H92 V118 H72 V152 H48 Z" fill="#ffffff" stroke="#e7e5e4" stroke-width="2"/>
+                    </svg>
+
+                </div>
+            </div>
+
+            <h1 class="text-3xl md:text-4xl font-black tracking-tight mb-2 text-white">
+                Castillo de Marcos
+            </h1>
+            <p class="text-orange-400 font-medium text-sm md:text-base mb-8 max-w-xs tracking-wide">
+                EL SABOR DEL REINO
+            </p>
+
+            <button onclick="enterCatalog()" class="w-full py-4 px-8 rounded-2xl bg-gradient-to-r from-orange-600 via-orange-500 to-amber-600 text-stone-950 font-extrabold text-base tracking-wide uppercase shadow-xl shadow-orange-600/40 hover:shadow-orange-500/60 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-3">
+                <span>Ver Menú & Pedir</span>
+                <i class="fa-solid fa-arrow-right-long"></i>
+            </button>
+        </div>
+
+        <!-- Firma de autoría -->
+        <div class="absolute bottom-4 left-4 z-10 text-[11px] font-mono tracking-widest text-stone-500 uppercase">
+            PAGE BY GREISI MORÓN
+        </div>
+    </div>
+
+
+    <!-- ==================================================== -->
+    <!-- APLICACIÓN PRINCIPAL                                 -->
+    <!-- ==================================================== -->
+    <div id="mainApp" class="hidden min-h-full flex flex-col bg-stone-950">
+        
+        <!-- HEADER / CABECERA -->
+        <header class="sticky top-0 z-40 backdrop-blur-md bg-stone-950/90 border-b border-stone-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="resetView()">
+                    <div class="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400">
+                        <i class="fa-solid fa-crown text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="font-extrabold text-lg md:text-xl tracking-tight text-white block">Castillo de Marcos</span>
+                        <span class="text-[11px] font-bold tracking-widest text-orange-400 uppercase block">
+                            EL SABOR DEL REINO
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <!-- Botón Panel Creadora (Privado - Llave Naranja) -->
+                    <button onclick="openCreatorPinModal()" class="p-2.5 rounded-xl bg-stone-900 border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 hover:border-orange-500 transition-all shadow-md" title="Panel de Creadora">
+                        <i class="fa-solid fa-key text-base"></i>
+                    </button>
+
+                    <!-- Botón Panel Admin (Candado) -->
+                    <button onclick="openAdminModal()" class="p-2.5 rounded-xl bg-stone-900 border border-stone-800 text-stone-400 hover:text-orange-400 hover:border-orange-500/50 transition-all" title="Panel de Administración">
+                        <i class="fa-solid fa-lock text-base"></i>
+                    </button>
+
+                    <!-- Botón de Carrito -->
+                    <button onclick="toggleCart()" class="relative p-2.5 rounded-xl bg-stone-900 border border-stone-800 text-stone-300 hover:text-white hover:border-orange-500/50 transition-all">
+                        <i class="fa-solid fa-bag-shopping text-lg"></i>
+                        <span id="cartBadge" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-orange-500 text-stone-950 font-black text-xs rounded-full flex items-center justify-center shadow-md hidden">0</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            <!-- Banner promocional -->
+            <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-stone-900 via-orange-950/30 to-stone-900 border border-orange-500/20 p-6 md:p-10 mb-8 shadow-2xl">
+                <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl text-orange-500 pointer-events-none">
+                    <i class="fa-solid fa-burger"></i>
+                </div>
+                <div class="relative z-10 max-w-xl">
+                    <span class="inline-block py-1 px-3 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-semibold uppercase tracking-wider mb-3">
+                        EL SABOR DEL REINO
+                    </span>
+                    <h2 class="text-2xl md:text-4xl font-extrabold text-white mb-3 tracking-tight">
+                        Hamburguesas y antojos legendarios
+                    </h2>
+                    <p class="text-stone-300 text-sm md:text-base leading-relaxed">
+                        Ingredientes de primera, jugosas carnes y combinaciones imperdibles preparadas al instante.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Filtros por Categoría (Incluyendo Extras) -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar" id="categoryContainer">
+                <button onclick="filterCategory('todos')" class="category-btn whitespace-nowrap px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-orange-500 text-stone-950 shadow-lg shadow-orange-500/20" data-cat="todos">
+                    <i class="fa-solid fa-border-all mr-2"></i> Todos
+                </button>
+                <button onclick="filterCategory('Hamburguesas')" class="category-btn whitespace-nowrap px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-stone-900 text-stone-400 hover:text-white border border-stone-800" data-cat="Hamburguesas">
+                    <i class="fa-solid fa-burger mr-2"></i> Hamburguesas
+                </button>
+                <button onclick="filterCategory('Perros Calientes')" class="category-btn whitespace-nowrap px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-stone-900 text-stone-400 hover:text-white border border-stone-800" data-cat="Perros Calientes">
+                    <i class="fa-solid fa-hotdog mr-2"></i> Perros Calientes
+                </button>
+                <button onclick="filterCategory('Papas Mixtas')" class="category-btn whitespace-nowrap px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-stone-900 text-stone-400 hover:text-white border border-stone-800" data-cat="Papas Mixtas">
+                    <i class="fa-solid fa-bowl-food mr-2"></i> Papas Mixtas
+                </button>
+                <button onclick="filterCategory('Bebidas')" class="category-btn whitespace-nowrap px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-stone-900 text-stone-400 hover:text-white border border-stone-800" data-cat="Bebidas">
+                    <i class="fa-solid fa-cup-straw mr-2"></i> Bebidas
+                </button>
+                <button onclick="filterCategory('Combos')" class="category-btn whitespace-nowrap px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-stone-900 text-stone-400 hover:text-white border border-stone-800" data-cat="Combos">
+                    <i class="fa-solid fa-utensils mr-2"></i> Combos
+                </button>
+                <button onclick="filterCategory('Extras')" class="category-btn whitespace-nowrap px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-stone-900 text-stone-400 hover:text-white border border-stone-800" data-cat="Extras">
+                    <i class="fa-solid fa-plus-circle mr-2"></i> Extras
+                </button>
+            </div>
+
+            <!-- Grid de Productos -->
+            <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Se inyecta dinámicamente -->
+            </div>
+
+            <!-- Estado vacío del catálogo -->
+            <div id="emptyCatalog" class="hidden text-center py-16">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-500 text-2xl">
+                    <i class="fa-solid fa-utensils"></i>
+                </div>
+                <h3 class="text-lg font-bold text-stone-300 mb-1">No hay productos en esta categoría</h3>
+                <p class="text-sm text-stone-500">Intenta con otra categoría o añade productos desde el panel de administración.</p>
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="mt-auto border-t border-stone-900 bg-stone-950/60 py-6 text-center text-xs text-stone-500">
+            <p>Castillo de Marcos. Todos los derechos reservados. &bull; <span class="uppercase font-mono">PAGE BY GREISI MORÓN</span></p>
+        </footer>
+    </div>
+
+
+    <!-- ==================================================== -->
+    <!-- MODAL DE CARRITO / BOLSA DE COMPRAS (DISEÑO FLUIDO)  -->
+    <!-- ==================================================== -->
+    <div id="cartModal" class="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm hidden flex justify-end transition-all">
+        <div class="w-full max-w-md bg-stone-900 h-full flex flex-col border-l border-stone-800 shadow-2xl animate-in slide-in-from-right duration-300">
+            
+            <!-- Header Carrito -->
+            <div class="p-4 border-b border-stone-800 flex items-center justify-between bg-stone-900 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-white">Tu Bolsa de Compras</h3>
+                </div>
+                <button onclick="toggleCart()" class="p-2 text-stone-400 hover:text-white rounded-lg hover:bg-stone-800 transition-all">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Contenido Desplazable del Carrito y Formulario -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                
+                <!-- Lista de Items en Carrito -->
+                <div id="cartItemsList" class="space-y-3">
+                    <!-- Se llena dinámicamente -->
+                </div>
+
+                <!-- Formulario de Checkout con Métodos de Pago Múltiples -->
+                <div id="checkoutSection" class="space-y-3 pt-3 border-t border-stone-800 hidden">
+                    <h4 class="font-bold text-sm text-stone-300 flex items-center gap-2">
+                        <i class="fa-solid fa-address-card text-orange-400"></i> Datos para el Pedido
+                    </h4>
+                    
+                    <div>
+                        <label class="block text-xs font-medium text-stone-400 mb-1">Nombre Completo</label>
+                        <input type="text" id="clientName" placeholder="Ej. Carlos Pérez" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500 transition-all">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-stone-400 mb-1">Cédula / ID</label>
+                            <input type="text" id="clientId" placeholder="Ej. V-25123456" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-stone-400 mb-1">Teléfono</label>
+                            <input type="tel" id="clientPhone" placeholder="Ej. 04141234567" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500 transition-all">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-400 mb-1">Método de Entrega</label>
+                        <select id="deliveryMethod" onchange="toggleDeliveryAddress()" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500 transition-all">
+                            <option value="Retiro en local">Retiro en local (Gratis)</option>
+                            <option value="Delivery Urbano">Delivery Urbano (Costo adicional)</option>
+                        </select>
+                    </div>
+                    <div id="addressContainer" class="hidden space-y-2">
+                        <label class="block text-xs font-medium text-stone-400 mb-1">Dirección de Entrega / Referencia / GPS</label>
+                        <textarea id="clientAddress" rows="2" placeholder="Calle, urbanización, punto de referencia o enlace GPS" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500 transition-all resize-none"></textarea>
+                        <div class="p-2.5 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs flex items-start gap-2">
+                            <i class="fa-solid fa-circle-info mt-0.5"></i>
+                            <span>El delivery tiene un costo adicional y debes enviar tu ubicación por GPS.</span>
+                        </div>
+                    </div>
+
+                    <!-- Selección de Método de Pago -->
+                    <div>
+                        <label class="block text-xs font-medium text-stone-400 mb-1">Método de Pago</label>
+                        <select id="paymentMethodSelect" onchange="updatePaymentInfoBox()" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500 transition-all">
+                            <option value="Pago Móvil">Pago Móvil</option>
+                            <option value="Transferencia">Transferencia Bancaria</option>
+                            <option value="Binance">Binance Pay</option>
+                            <option value="Zinli">Zinli</option>
+                        </select>
+                    </div>
+
+                    <!-- Ventanita Dinámica con los Datos del Método de Pago Seleccionado -->
+                    <div class="bg-stone-950 border border-orange-500/40 rounded-2xl p-3.5 space-y-1">
+                        <div class="flex items-center justify-between text-xs font-bold text-orange-400 mb-1">
+                            <span><i class="fa-solid fa-wallet mr-1"></i> <span id="pmBoxTitle">Datos para Pago Móvil</span></span>
+                            <span class="text-[10px] text-stone-400">Verifica bien antes de enviar</span>
+                        </div>
+                        <div id="pmBoxContent" class="text-xs text-stone-300 space-y-0.5">
+                            <!-- Se actualiza dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Campo de Referencia o Hash de Pago -->
+                    <div>
+                        <label class="block text-xs font-medium text-stone-400 mb-1" id="clientRefLabel">Referencia Bancaria (Pago Móvil)</label>
+                        <input type="text" id="clientRef" placeholder="Ej. 12345 o Hash de transacción" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500 transition-all">
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Resumen y Botón de WhatsApp Fijo Abajo -->
+            <div id="cartFooterSection" class="p-4 border-t border-stone-800 bg-stone-900 shrink-0 hidden shadow-2xl">
+                <div class="space-y-1.5 mb-3">
+                    <div class="flex justify-between text-xs text-stone-400">
+                        <span>Subtotal:</span>
+                        <span id="cartSubtotal">$0.00</span>
+                    </div>
+                    <div class="flex justify-between text-base font-extrabold text-white pt-2 border-t border-stone-800">
+                        <span>Total a Pagar:</span>
+                        <div class="text-right">
+                            <div id="cartTotalUSD" class="text-orange-400 text-lg">$0.00 USD</div>
+                            <div id="cartTotalBs" class="text-xs text-stone-200 font-bold bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/30 inline-block mt-0.5">0,00 Bs</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="checkoutWhatsApp()" id="checkoutBtn" class="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm tracking-wide shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-xl"></i>
+                    <span>Enviar Pedido por WhatsApp</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================================================== -->
+    <!-- MODAL PIN DE ADMINISTRACIÓN                          -->
+    <!-- ==================================================== -->
+    <div id="pinModal" class="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="w-full max-w-sm bg-stone-900 border border-stone-800 rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 text-xl">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h3 class="text-xl font-extrabold text-white">Panel de Administración</h3>
+                <p class="text-xs text-stone-400 mt-1">Ingresa el PIN de seguridad (Default: 1234)</p>
+            </div>
+
+            <div class="mb-5">
+                <input type="password" id="adminPinInput" maxlength="6" placeholder="PIN de seguridad" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-4 py-3 text-center tracking-widest text-lg text-white focus:outline-none focus:border-orange-500 transition-all">
+                <p id="pinError" class="text-rose-500 text-xs text-center mt-2 hidden">PIN incorrecto. Intenta de nuevo.</p>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closePinModal()" class="flex-1 py-3 px-4 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-semibold text-sm transition-all">Cancelar</button>
+                <button onclick="verifyAdminPin()" class="flex-1 py-3 px-4 rounded-xl bg-orange-500 hover:bg-orange-400 text-stone-950 font-bold text-sm transition-all shadow-lg shadow-orange-500/20">Ingresar</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================================================== -->
+    <!-- MODAL PIN DE CREADORA (PRIVADO)                      -->
+    <!-- ==================================================== -->
+    <div id="creatorPinModal" class="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="w-full max-w-sm bg-stone-900 border border-orange-500/30 rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-orange-500/10 border border-orange-500/40 flex items-center justify-center text-orange-400 text-xl shadow-lg">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+                <h3 class="text-xl font-extrabold text-white">Panel de Creadora</h3>
+                <p class="text-xs text-stone-400 mt-1">Acceso exclusivo - Greisi Morón (Default: 5678)</p>
+            </div>
+
+            <div class="mb-5">
+                <input type="password" id="creatorPinInput" maxlength="6" placeholder="PIN de Creadora" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-4 py-3 text-center tracking-widest text-lg text-white focus:outline-none focus:border-orange-500 transition-all">
+                <p id="creatorPinError" class="text-rose-500 text-xs text-center mt-2 hidden">PIN de Creadora incorrecto.</p>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeCreatorPinModal()" class="flex-1 py-3 px-4 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-semibold text-sm transition-all">Cancelar</button>
+                <button onclick="verifyCreatorPin()" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-stone-950 font-bold text-sm transition-all shadow-lg shadow-orange-500/20">Acceder</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================================================== -->
+    <!-- PANEL DE ADMINISTRACIÓN (DASHBOARD)                  -->
+    <!-- ==================================================== -->
+    <div id="adminPanelModal" class="fixed inset-0 z-50 bg-stone-950 hidden flex flex-col overflow-y-auto">
+        <!-- Header Admin -->
+        <header class="sticky top-0 z-40 bg-stone-900 border-b border-stone-800 px-4 py-4">
+            <div class="max-w-7xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400">
+                        <i class="fa-solid fa-gauge-high"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-extrabold text-lg text-white">Panel de Control & Admin</h2>
+                        <span class="text-xs text-stone-400">Gestiona inventario, métodos de pago y tasa BCV</span>
+                    </div>
+                </div>
+                <button onclick="closeAdminPanel()" class="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-semibold text-sm transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Salir</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+            
+            <!-- CONFIGURACIONES GENERALES Y MÉTODOS DE PAGO -->
+            <div class="bg-stone-900 border border-stone-800 rounded-3xl p-6 shadow-xl space-y-6">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-extrabold text-base text-white flex items-center gap-2">
+                        <i class="fa-solid fa-gear text-orange-400"></i> Ajustes del Negocio & Métodos de Pago
+                    </h3>
+                    <button onclick="saveSettings()" class="py-2 px-5 rounded-xl bg-orange-500 hover:bg-orange-400 text-stone-950 font-extrabold text-xs uppercase tracking-wider transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Ajustes
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-stone-400 mb-1">Tasa BCV (Bs por $1)</label>
+                        <input type="number" step="0.01" id="configBcv" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-400 mb-1">WhatsApp del Local (Pedidos)</label>
+                        <input type="text" id="configWhatsapp" placeholder="584141234567" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-400 mb-1">PIN de Admin</label>
+                        <input type="text" id="configPin" maxlength="6" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
+                    </div>
+                </div>
+
+                <!-- Pago Móvil -->
+                <div class="border-t border-stone-800 pt-4">
+                    <h4 class="font-bold text-sm text-orange-400 mb-3"><i class="fa-solid fa-mobile-screen-button mr-1"></i> Configuración Pago Móvil</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-stone-400 mb-1">Banco</label>
+                            <input type="text" id="configPmBank" placeholder="Ej. Banco de Venezuela (0102)" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-stone-400 mb-1">Teléfono</label>
+                            <input type="text" id="configPmPhone" placeholder="04141234567" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-stone-400 mb-1">Cédula o RIF</label>
+                            <input type="text" id="configPmId" placeholder="V-12345678" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transferencia Bancaria -->
+                <div class="border-t border-stone-800 pt-4">
+                    <h4 class="font-bold text-sm text-orange-400 mb-3"><i class="fa-solid fa-building-columns mr-1"></i> Configuración Transferencia Bancaria</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-stone-400 mb-1">Banco / Titular</label>
+                            <input type="text" id="configTrBank" placeholder="Ej. Banesco - Cta Corriente" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-stone-400 mb-1">Número de Cuenta</label>
+                            <input type="text" id="configTrAccount" placeholder="0134-..." class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-stone-400 mb-1">Cédula / RIF</label>
+                            <input type="text" id="configTrId" placeholder="J-123456789" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Binance & Zinli -->
+                <div class="border-t border-stone-800 pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="font-bold text-sm text-orange-400 mb-3"><i class="fa-brands fa-bitcoin mr-1"></i> Configuración Binance Pay</h4>
+                        <label class="block text-xs font-medium text-stone-400 mb-1">Correo o Binance Pay ID</label>
+                        <input type="text" id="configBinance" placeholder="correo@domain.com o ID" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-orange-400 mb-3"><i class="fa-solid fa-wallet mr-1"></i> Configuración Zinli</h4>
+                        <label class="block text-xs font-medium text-stone-400 mb-1">Correo Zinli</label>
+                        <input type="text" id="configZinli" placeholder="correo@zinli.com" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-2">
+                    <button onclick="saveSettings()" class="py-3 px-8 rounded-xl bg-orange-500 hover:bg-orange-400 text-stone-950 font-extrabold text-sm uppercase tracking-wider transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Ajustes y Métodos de Pago
+                    </button>
+                </div>
+            </div>
+
+            <!-- GESTIÓN DE INVENTARIO (PRODUCTOS) -->
+            <div class="bg-stone-900 border border-stone-800 rounded-3xl p-6 shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <h3 class="font-extrabold text-base text-white flex items-center gap-2">
+                        <i class="fa-solid fa-boxes-stacked text-orange-400"></i> Inventario de Productos & Extras
+                    </h3>
+                    <button onclick="openProductModal()" class="py-2.5 px-5 rounded-xl bg-orange-500 hover:bg-orange-400 text-stone-950 font-bold text-sm transition-all flex items-center gap-2 shadow-lg shadow-orange-500/20">
+                        <i class="fa-solid fa-plus"></i> Nuevo Producto / Extra
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-stone-300">
+                        <thead class="bg-stone-950 uppercase text-xs text-stone-400 tracking-wider">
+                            <tr>
+                                <th class="p-3.5 rounded-l-xl">Imagen</th>
+                                <th class="p-3.5">Nombre</th>
+                                <th class="p-3.5">Categoría</th>
+                                <th class="p-3.5">Precio ($)</th>
+                                <th class="p-3.5 rounded-r-xl text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminProductTable" class="divide-y divide-stone-800/60">
+                            <!-- Se llena dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ==================================================== -->
+    <!-- PANEL DE CREADORA (PRIVADO - GREISI MORÓN)           -->
+    <!-- ==================================================== -->
+    <div id="creatorPanelModal" class="fixed inset-0 z-50 bg-stone-950 hidden flex flex-col overflow-y-auto">
+        <!-- Header Creadora -->
+        <header class="sticky top-0 z-40 bg-stone-900 border-b border-orange-500/30 px-4 py-4">
+            <div class="max-w-7xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-extrabold text-lg text-white">Panel Exclusivo de Creadora</h2>
+                        <span class="text-xs text-orange-400 font-mono">AUTORÍA: PAGE BY GREISI MORÓN</span>
+                    </div>
+                </div>
+                <button onclick="closeCreatorPanel()" class="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-semibold text-sm transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Cerrar Panel</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+            
+            <!-- CONFIGURACIÓN DE TU WHATSAPP PERSONAL Y PIN DE CREADORA -->
+            <div class="bg-stone-900 border border-orange-500/30 rounded-3xl p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-extrabold text-base text-white flex items-center gap-2">
+                        <i class="fa-solid fa-user-shield text-orange-400"></i> Ajustes Privados de Creadora
+                    </h3>
+                    <button onclick="saveCreatorSettings()" class="py-2 px-5 rounded-xl bg-orange-500 hover:bg-orange-400 text-stone-950 font-extrabold text-xs uppercase tracking-wider transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Ajustes
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-stone-400 mb-1">Tu Número WhatsApp Personal (Para auditoría)</label>
+                        <input type="text" id="configCreatorWhatsapp" placeholder="584141234567" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-400 mb-1">Tu PIN de Creadora</label>
+                        <input type="text" id="configCreatorPin" maxlength="6" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
+                    </div>
+                </div>
+                <div class="mt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <span class="text-xs text-stone-500">* Este número recibe tu respaldo diario privado sin que los dueños ni clientes lo vean.</span>
+                    <button onclick="saveCreatorSettings()" class="py-2.5 px-6 rounded-xl bg-orange-500 hover:bg-orange-400 text-stone-950 font-bold text-sm transition-all shadow-lg shadow-orange-500/20">
+                        Guardar Ajustes Privados
+                    </button>
+                </div>
+            </div>
+
+            <!-- GESTIÓN DIARIA DE VENTAS (REINICIO / LIMPIEZA) -->
+            <div class="bg-stone-900 border border-stone-800 rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <h3 class="font-extrabold text-base text-white flex items-center gap-2 mb-1">
+                        <i class="fa-solid fa-broom text-orange-400"></i> Gestión de Ventas Diarias
+                    </h3>
+                    <p class="text-xs text-stone-400">Limpia y reinicia los registros del día anterior para que las ventas de hoy comiencen totalmente en cero sin acumularse con las pasadas.</p>
+                </div>
+                <button onclick="clearPreviousSales()" class="py-3 px-6 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/50 text-rose-400 font-bold text-xs uppercase tracking-wider transition-all shrink-0 flex items-center gap-2">
+                    <i class="fa-solid fa-trash-can"></i> Limpiar / Reiniciar Ventas de Ayer
+                </button>
+            </div>
+
+            <!-- ANALÍTICAS DE VENTAS DIARIAS -->
+            <div class="bg-stone-900 border border-stone-800 rounded-3xl p-6 shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <h3 class="font-extrabold text-base text-white flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-orange-400"></i> Analíticas de Ventas Diarias (Corte de Caja)
+                    </h3>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="sendCreatorWhatsAppReport()" class="py-2.5 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition-all shadow-lg shadow-emerald-600/20 flex items-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-base"></i> Enviar Corte a mi WhatsApp
+                        </button>
+                        <button onclick="generatePDFReport()" class="py-2.5 px-6 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-sm transition-all shadow-lg shadow-red-600/20 flex items-center gap-2">
+                            <i class="fa-solid fa-file-pdf"></i> Descargar Reporte PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tarjetas de Resumen Analítico -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-stone-950 border border-stone-800 rounded-2xl p-4">
+                        <span class="text-xs text-stone-400 uppercase tracking-wider block mb-1">Total Ventas (USD)</span>
+                        <div id="analyticsTotalUSD" class="text-2xl font-black text-orange-400">$0.00</div>
+                    </div>
+                    <div class="bg-stone-950 border border-stone-800 rounded-2xl p-4">
+                        <span class="text-xs text-stone-400 uppercase tracking-wider block mb-1">Total Ventas (Bs)</span>
+                        <div id="analyticsTotalBs" class="text-2xl font-black text-white">0,00 Bs</div>
+                    </div>
+                    <div class="bg-stone-950 border border-stone-800 rounded-2xl p-4">
+                        <span class="text-xs text-stone-400 uppercase tracking-wider block mb-1">Retiros en Local</span>
+                        <div id="analyticsPickupCount" class="text-2xl font-black text-emerald-400">0 pedidos</div>
+                    </div>
+                    <div class="bg-stone-950 border border-stone-800 rounded-2xl p-4">
+                        <span class="text-xs text-stone-400 uppercase tracking-wider block mb-1">Deliveries Urbanos</span>
+                        <div id="analyticsDeliveryCount" class="text-2xl font-black text-blue-400">0 pedidos</div>
+                    </div>
+                </div>
+
+                <!-- Desglose de Productos Vendidos -->
+                <div class="border border-stone-800 rounded-2xl overflow-hidden mb-6">
+                    <div class="bg-stone-950 px-4 py-3 border-b border-stone-800 text-xs font-bold text-stone-400 uppercase">
+                        Desglose de Productos Vendidos
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-stone-300">
+                            <thead class="bg-stone-950/60 text-xs text-stone-500 uppercase">
+                                <tr>
+                                    <th class="p-3">Producto</th>
+                                    <th class="p-3">Categoría</th>
+                                    <th class="p-3 text-center">Cantidad Vendida</th>
+                                    <th class="p-3 text-right">Total Generado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="analyticsProductTable" class="divide-y divide-stone-800/40">
+                                <!-- Se llena dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRÁFICAS Y REPORTE SEMANAL -->
+            <div class="bg-stone-900 border border-stone-800 rounded-3xl p-6 shadow-xl space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="font-extrabold text-base text-white flex items-center gap-2 mb-1">
+                            <i class="fa-solid fa-chart-line text-orange-400"></i> Gráficas de Ventas Semanales
+                        </h3>
+                        <p class="text-xs text-stone-400">Evolución de ventas acumuladas por día de la semana actual en USD.</p>
+                    </div>
+                    <button onclick="generateWeeklyPDFReport()" class="py-2.5 px-6 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-stone-950 font-extrabold text-xs uppercase tracking-wider transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf"></i> Descargar Reporte Semanal PDF
+                    </button>
+                </div>
+
+                <!-- Contenedor del Gráfico Chart.js -->
+                <div class="bg-stone-950 border border-stone-800 rounded-2xl p-4 h-80 relative flex items-center justify-center">
+                    <canvas id="weeklySalesChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ==================================================== -->
+    <!-- MODAL DE CREACIÓN / EDICIÓN DE PRODUCTO              -->
+    <!-- ==================================================== -->
+    <div id="productModal" class="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="w-full max-w-lg bg-stone-900 border border-stone-800 rounded-3xl p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-5">
+                <h3 id="productModalTitle" class="font-extrabold text-lg text-white">Nuevo Producto / Extra</h3>
+                <button onclick="closeProductModal()" class="p-2 text-stone-400 hover:text-white rounded-lg hover:bg-stone-800 transition-all">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <input type="hidden" id="editProductId">
+
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-xs font-medium text-stone-400 mb-1">Nombre del Producto o Extra</label>
+                    <input type="text" id="prodName" placeholder="Ej. Extra Tocineta / Salsa de la Casa" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-stone-400 mb-1">Categoría</label>
+                        <select id="prodCategory" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
+                            <option value="Hamburguesas">Hamburguesas</option>
+                            <option value="Perros Calientes">Perros Calientes</option>
+                            <option value="Papas Mixtas">Papas Mixtas</option>
+                            <option value="Bebidas">Bebidas</option>
+                            <option value="Combos">Combos</option>
+                            <option value="Extras">Extras</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-400 mb-1">Precio en USD ($)</label>
+                        <input type="number" step="0.01" id="prodPrice" placeholder="0.00" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-stone-400 mb-1">Descripción</label>
+                    <textarea id="prodDesc" rows="2" placeholder="Ingredientes y detalles..." class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500 resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-stone-400 mb-1">Imagen del Producto / Extra</label>
+                    <input type="file" id="prodImageFile" accept="image/*" class="w-full text-xs text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-orange-500/10 file:text-orange-400 hover:file:bg-orange-500/20 cursor-pointer">
+                    <div class="mt-3 flex justify-center">
+                        <img id="prodImagePreview" src="" alt="Vista previa" class="w-24 h-24 object-cover rounded-xl border border-stone-800 hidden">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeProductModal()" class="flex-1 py-3 px-4 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-semibold text-sm transition-all">Cancelar</button>
+                <button onclick="saveProduct()" class="flex-1 py-3 px-4 rounded-xl bg-orange-500 hover:bg-orange-400 text-stone-950 font-bold text-sm transition-all shadow-lg shadow-orange-500/20">Guardar Producto</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================================================== -->
+    <!-- SCRIPT DESTRUCTOR IMPLACABLE DE NETLIFY BADGE        -->
+    <!-- ==================================================== -->
+    <script>
+        (function() {
+            const destroyBadge = () => {
+                document.querySelectorAll('a, div, span').forEach(el => {
+                    try {
+                        const txt = el.innerText || el.textContent || '';
+                        const href = el.href || '';
+                        if (txt.includes('Powered by Netlify') || href.includes('netlify.com/?utm_source=badge')) {
+                            let target = el.closest('div[style*="position"]') || el.closest('a') || el;
+                            target.remove();
+                        }
+                    } catch(e) {}
+                });
+            };
+            setInterval(destroyBadge, 20);
+            window.addEventListener('DOMContentLoaded', destroyBadge);
+            const observer = new MutationObserver(destroyBadge);
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+        })();
+    </script>
+
+
+    <!-- ==================================================== -->
+    <!-- LOGICA JAVASCRIPT & FIREBASE SDK                     -->
+    <!-- ==================================================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, deleteDoc, onSnapshot, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Credenciales configuradas para el proyecto Firebase "castillo-de-marcos"
+        const firebaseConfig = {
+            apiKey: "AIzaSyCnz_H7BFKZkHHV1HRu0M7qR9GZCeL3IBs",
+            authDomain: "castillo-de-marcos.firebaseapp.com",
+            projectId: "castillo-de-marcos",
+            storageBucket: "castillo-de-marcos.firebasestorage.app",
+            messagingSenderId: "968392147411",
+            appId: "1:968392147411:web:e9d77807adcfbb7ebeaf26"
+        };
+
+        let db = null;
+        let useFirebase = false;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            useFirebase = true;
+        } catch (e) {
+            console.log("Firebase local fallback mode.", e);
+        }
+
+        // Estado Global
+        window.appState = {
+            bcvRate: 36.50,
+            whatsappNumber: "584141234567",
+            adminPin: "1234",
+            creatorPin: "5678",
+            creatorWhatsapp: "584141234567",
+            pagoMovilBank: "Banco de Venezuela (0102)",
+            pagoMovilPhone: "04141234567",
+            pagoMovilId: "V-12345678",
+            transferBank: "Banesco - Cta Corriente",
+            transferAccount: "0134-1234-56-1234567890",
+            transferId: "J-123456789",
+            binanceDetails: "pagos@castillodemarcos.com",
+            zinliDetails: "pagos@zinli.com",
+            currentCategory: "todos",
+            cart: [],
+            products: [
+                {
+                    id: "prod_1",
+                    name: "Doble Burger Castillo",
+                    category: "Hamburguesas",
+                    price: 9.50,
+                    description: "Doble carne de res 180g, queso cheddar fundido, tocino crujiente y salsa secreta de la casa.",
+                    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&auto=format&fit=crop&q=60"
+                },
+                {
+                    id: "prod_2",
+                    name: "Burger Crispy Royal",
+                    category: "Hamburguesas",
+                    price: 8.00,
+                    description: "Pechuga de pollo empanizada crujiente, ensalada coleslaw fresca, pepinillos y aderezo ranch.",
+                    image: "https://images.unsplash.com/photo-1615297262073-2d5d8525b682?w=500&auto=format&fit=crop&q=60"
+                },
+                {
+                    id: "prod_3",
+                    name: "Perro Caliente Monumental",
+                    category: "Perros Calientes",
+                    price: 5.00,
+                    description: "Salchicha jumbo ahumada, queso fundido, papitas hilo, maíz tierno, tocineta y salsa de ajo.",
+                    image: "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500&auto=format&fit=crop&q=60"
+                },
+                {
+                    id: "prod_4",
+                    name: "Papas Mixtas del Castillo",
+                    category: "Papas Mixtas",
+                    price: 7.50,
+                    description: "Papas fritas crujientes bañadas en queso cheddar fundido, trozos de pollo, carne y tocineta.",
+                    image: "https://images.unsplash.com/photo-1585109649139-366815a0d713?w=500&auto=format&fit=crop&q=60"
+                },
+                {
+                    id: "prod_5",
+                    name: "Combo Real Pareja",
+                    category: "Combos",
+                    price: 18.00,
+                    description: "2 Hamburguesas a elección + 1 porción grande de papas mixtas + 2 bebidas de lata de 355ml.",
+                    image: "https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=500&auto=format&fit=crop&q=60"
+                },
+                {
+                    id: "prod_6",
+                    name: "Malteada Real de Chocolate",
+                    category: "Bebidas",
+                    price: 4.50,
+                    description: "Cremosa malteada elaborada con helado de vainilla, crema batida y chocolate artesanal.",
+                    image: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500&auto=format&fit=crop&q=60"
+                },
+                {
+                    id: "prod_7",
+                    name: "Extra Tocineta Crujiente",
+                    category: "Extras",
+                    price: 1.50,
+                    description: "Porción adicional de tocineta ahumada dorada al punto exacto.",
+                    image: "https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=500&auto=format&fit=crop&q=60"
+                },
+                {
+                    id: "prod_8",
+                    name: "Extra Queso Cheddar Fundido",
+                    category: "Extras",
+                    price: 1.00,
+                    description: "Baño extra de queso fundido artesanal de la casa.",
+                    image: "https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?w=500&auto=format&fit=crop&q=60"
+                }
+            ],
+            orders: [
+                { id: "ord_1", client: "Pedro Pérez", idNumber: "V-20123456", phone: "04141234567", method: "Retiro en local", paymentMethod: "Pago Móvil", address: "", paymentRef: "12345", items: [{name: "Doble Burger Castillo", qty: 2, price: 9.50}], totalUSD: 19.00, timestamp: new Date().toISOString() }
+            ]
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadLocalData();
+            renderCatalog();
+            setupImageCompression();
+            if (useFirebase) {
+                initFirebaseSync();
+            }
+        });
+
+        function loadLocalData() {
+            const savedProducts = localStorage.getItem('cm_products');
+            const savedSettings = localStorage.getItem('cm_settings');
+            const savedOrders = localStorage.getItem('cm_orders');
+
+            if (savedProducts) window.appState.products = JSON.parse(savedProducts);
+            if (savedSettings) {
+                const s = JSON.parse(savedSettings);
+                window.appState.bcvRate = s.bcvRate ?? 36.50;
+                window.appState.whatsappNumber = s.whatsappNumber ?? "584141234567";
+                window.appState.adminPin = s.adminPin ?? "1234";
+                window.appState.creatorPin = s.creatorPin ?? "5678";
+                window.appState.creatorWhatsapp = s.creatorWhatsapp ?? "584141234567";
+                window.appState.pagoMovilBank = s.pagoMovilBank ?? "Banco de Venezuela (0102)";
+                window.appState.pagoMovilPhone = s.pagoMovilPhone ?? "04141234567";
+                window.appState.pagoMovilId = s.pagoMovilId ?? "V-12345678";
+                window.appState.transferBank = s.transferBank ?? "Banesco - Cta Corriente";
+                window.appState.transferAccount = s.transferAccount ?? "0134-1234-56-1234567890";
+                window.appState.transferId = s.transferId ?? "J-123456789";
+                window.appState.binanceDetails = s.binanceDetails ?? "pagos@castillodemarcos.com";
+                window.appState.zinliDetails = s.zinliDetails ?? "pagos@zinli.com";
+            }
+            if (savedOrders) window.appState.orders = JSON.parse(savedOrders);
+        }
+
+        function saveLocalData() {
+            localStorage.setItem('cm_products', JSON.stringify(window.appState.products));
+            localStorage.setItem('cm_settings', JSON.stringify({
+                bcvRate: window.appState.bcvRate,
+                whatsappNumber: window.appState.whatsappNumber,
+                adminPin: window.appState.adminPin,
+                creatorPin: window.appState.creatorPin,
+                creatorWhatsapp: window.appState.creatorWhatsapp,
+                pagoMovilBank: window.appState.pagoMovilBank,
+                pagoMovilPhone: window.appState.pagoMovilPhone,
+                pagoMovilId: window.appState.pagoMovilId,
+                transferBank: window.appState.transferBank,
+                transferAccount: window.appState.transferAccount,
+                transferId: window.appState.transferId,
+                binanceDetails: window.appState.binanceDetails,
+                zinliDetails: window.appState.zinliDetails
+            }));
+            localStorage.setItem('cm_orders', JSON.stringify(window.appState.orders));
+        }
+
+        async function initFirebaseSync() {
+            try {
+                onSnapshot(collection(db, "products"), (snapshot) => {
+                    if (!snapshot.empty) {
+                        const prods = [];
+                        snapshot.forEach(docSnap => {
+                            prods.push({ id: docSnap.id, ...docSnap.data() });
+                        });
+                        window.appState.products = prods;
+                        renderCatalog();
+                        renderAdminProducts();
+                    }
+                });
+
+                const settingsRef = doc(db, "settings", "general");
+                const settingsSnap = await getDoc(settingsRef);
+                if (settingsSnap.exists()) {
+                    const data = settingsSnap.data();
+                    window.appState.bcvRate = data.bcvRate || window.appState.bcvRate;
+                    window.appState.whatsappNumber = data.whatsappNumber || window.appState.whatsappNumber;
+                    window.appState.adminPin = data.adminPin || window.appState.adminPin;
+                    window.appState.creatorPin = data.creatorPin || window.appState.creatorPin;
+                    window.appState.creatorWhatsapp = data.creatorWhatsapp || window.appState.creatorWhatsapp;
+                    window.appState.pagoMovilBank = data.pagoMovilBank || window.appState.pagoMovilBank;
+                    window.appState.pagoMovilPhone = data.pagoMovilPhone || window.appState.pagoMovilPhone;
+                    window.appState.pagoMovilId = data.pagoMovilId || window.appState.pagoMovilId;
+                    window.appState.transferBank = data.transferBank || window.appState.transferBank;
+                    window.appState.transferAccount = data.transferAccount || window.appState.transferAccount;
+                    window.appState.transferId = data.transferId || window.appState.transferId;
+                    window.appState.binanceDetails = data.binanceDetails || window.appState.binanceDetails;
+                    window.appState.zinliDetails = data.zinliDetails || window.appState.zinliDetails;
+                    renderCatalog();
+                } else {
+                    await setDoc(settingsRef, {
+                        bcvRate: window.appState.bcvRate,
+                        whatsappNumber: window.appState.whatsappNumber,
+                        adminPin: window.appState.adminPin,
+                        creatorPin: window.appState.creatorPin,
+                        creatorWhatsapp: window.appState.creatorWhatsapp,
+                        pagoMovilBank: window.appState.pagoMovilBank,
+                        pagoMovilPhone: window.appState.pagoMovilPhone,
+                        pagoMovilId: window.appState.pagoMovilId,
+                        transferBank: window.appState.transferBank,
+                        transferAccount: window.appState.transferAccount,
+                        transferId: window.appState.transferId,
+                        binanceDetails: window.appState.binanceDetails,
+                        zinliDetails: window.appState.zinliDetails
+                    });
+                }
+            } catch (e) {
+                console.log("Error sincronizando con Firebase, usando local.", e);
+            }
+        }
+
+        window.enterCatalog = function() {
+            const splash = document.getElementById('splashScreen');
+            const main = document.getElementById('mainApp');
+            splash.classList.add('opacity-0');
+            setTimeout(() => {
+                splash.classList.add('hidden');
+                main.classList.remove('hidden');
+            }, 700);
+        };
+
+        window.resetView = function() {
+            window.appState.currentCategory = 'todos';
+            highlightCategoryBtn('todos');
+            renderCatalog();
+        };
+
+        window.filterCategory = function(cat) {
+            window.appState.currentCategory = cat;
+            highlightCategoryBtn(cat);
+            renderCatalog();
+        };
+
+        function highlightCategoryBtn(cat) {
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                if (btn.getAttribute('data-cat') === cat) {
+                    btn.className = "category-btn whitespace-nowrap px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-orange-500 text-stone-950 shadow-lg shadow-orange-500/20";
+                } else {
+                    btn.className = "category-btn whitespace-nowrap px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-stone-900 text-stone-400 hover:text-white border border-stone-800";
+                }
+            });
+        }
+
+        // Renderizado del Catálogo con Selector de Cantidad en la Tarjeta
+        window.renderCatalog = function() {
+            const grid = document.getElementById('productGrid');
+            const empty = document.getElementById('emptyCatalog');
+            grid.innerHTML = '';
+
+            const filtered = window.appState.currentCategory === 'todos' 
+                ? window.appState.products 
+                : window.appState.products.filter(p => p.category === window.appState.currentCategory);
+
+            if (filtered.length === 0) {
+                empty.classList.remove('hidden');
+                return;
+            } else {
+                empty.classList.add('hidden');
+            }
+
+            filtered.forEach(prod => {
+                const priceBs = (prod.price * window.appState.bcvRate).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                
+                const card = document.createElement('div');
+                card.className = "group bg-stone-900 border border-stone-800/80 rounded-3xl overflow-hidden hover:border-orange-500/50 transition-all duration-300 flex flex-col shadow-xl";
+                card.innerHTML = `
+                    <div class="relative h-48 overflow-hidden bg-stone-950">
+                        <img src="${prod.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop&q=60'}" alt="${prod.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <span class="absolute top-3 left-3 bg-stone-950/80 backdrop-blur-md text-orange-400 text-xs font-semibold px-3 py-1 rounded-full border border-orange-500/30">
+                            ${prod.category}
+                        </span>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-bold text-lg text-white mb-1.5 group-hover:text-orange-400 transition-colors">${prod.name}</h4>
+                            <p class="text-stone-400 text-xs leading-relaxed mb-4 line-clamp-2">${prod.description}</p>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <span class="text-lg font-black text-white">$${prod.price.toFixed(2)}</span>
+                                    <span class="block text-[11px] text-stone-400">${priceBs} Bs</span>
+                                </div>
+                                <!-- Selector de cantidad en la tarjeta -->
+                                <div class="flex items-center bg-stone-950 border border-stone-800 rounded-xl p-1">
+                                    <button onclick="adjustCardQty('${prod.id}', -1)" class="w-7 h-7 rounded-lg bg-stone-900 text-stone-300 hover:text-white flex items-center justify-center font-bold text-xs">-</button>
+                                    <span id="qty-input-${prod.id}" class="w-8 text-center text-xs font-bold text-white">1</span>
+                                    <button onclick="adjustCardQty('${prod.id}', 1)" class="w-7 h-7 rounded-lg bg-stone-900 text-stone-300 hover:text-white flex items-center justify-center font-bold text-xs">+</button>
+                                </div>
+                            </div>
+                            <button onclick='addSelectedToCart(${JSON.stringify(prod)})' class="w-full py-3 px-4 rounded-xl bg-orange-500 hover:bg-orange-400 text-stone-950 font-extrabold text-xs uppercase tracking-wider transition-all shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-cart-plus text-base"></i>
+                                <span>Agregar al Carrito</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        };
+
+        // Cantidades temporales en las tarjetas del catálogo
+        const cardQuantities = {};
+        window.adjustCardQty = function(id, delta) {
+            if (!cardQuantities[id]) cardQuantities[id] = 1;
+            cardQuantities[id] += delta;
+            if (cardQuantities[id] < 1) cardQuantities[id] = 1;
+            const el = document.getElementById(`qty-input-${id}`);
+            if (el) el.innerText = cardQuantities[id];
+        };
+
+        window.addSelectedToCart = function(prod) {
+            const qty = cardQuantities[prod.id] || 1;
+            const existing = window.appState.cart.find(item => item.id === prod.id);
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                window.appState.cart.push({ ...prod, qty: qty });
+            }
+            cardQuantities[prod.id] = 1;
+            const el = document.getElementById(`qty-input-${prod.id}`);
+            if (el) el.innerText = 1;
+
+            updateCartUI();
+        };
+
+        // Carrito
+        window.toggleCart = function(forceOpen = false) {
+            const modal = document.getElementById('cartModal');
+            if (forceOpen) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.toggle('hidden');
+            }
+            renderCartItems();
+        };
+
+        window.changeQty = function(id, delta) {
+            const item = window.appState.cart.find(i => i.id === id);
+            if (item) {
+                item.qty += delta;
+                if (item.qty <= 0) {
+                    window.appState.cart = window.appState.cart.filter(i => i.id !== id);
+                }
+            }
+            updateCartUI();
+            renderCartItems();
+        };
+
+        function updateCartUI() {
+            const badge = document.getElementById('cartBadge');
+            const totalItems = window.appState.cart.reduce((sum, item) => sum + item.qty, 0);
+            if (totalItems > 0) {
+                badge.innerText = totalItems;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function renderCartItems() {
+            const list = document.getElementById('cartItemsList');
+            const checkoutSec = document.getElementById('checkoutSection');
+            const footerSec = document.getElementById('cartFooterSection');
+            list.innerHTML = '';
+
+            if (window.appState.cart.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fa-solid fa-basket-shopping text-4xl text-stone-700 mb-3"></i>
+                        <p class="text-stone-400 text-sm">Tu bolsa de compras está vacía</p>
+                    </div>
+                `;
+                checkoutSec.classList.add('hidden');
+                footerSec.classList.add('hidden');
+                updateCartTotals();
+                return;
+            }
+
+            checkoutSec.classList.remove('hidden');
+            footerSec.classList.remove('hidden');
+            updatePaymentInfoBox();
+
+            window.appState.cart.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = "flex items-center justify-between bg-stone-950 p-3 rounded-2xl border border-stone-800";
+                itemDiv.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${item.image}" class="w-12 h-12 rounded-xl object-cover">
+                        <div>
+                            <h5 class="font-bold text-sm text-white">${item.name}</h5>
+                            <span class="text-xs text-orange-400 font-semibold">$${(item.price * item.qty).toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeQty('${item.id}', -1)" class="w-7 h-7 rounded-lg bg-stone-900 border border-stone-800 text-stone-300 hover:text-white flex items-center justify-center font-bold">-</button>
+                        <span class="text-sm font-bold text-white w-5 text-center">${item.qty}</span>
+                        <button onclick="changeQty('${item.id}', 1)" class="w-7 h-7 rounded-lg bg-stone-900 border border-stone-800 text-stone-300 hover:text-white flex items-center justify-center font-bold">+</button>
+                    </div>
+                `;
+                list.appendChild(itemDiv);
+            });
+
+            updateCartTotals();
+        }
+
+        window.updatePaymentInfoBox = function() {
+            const method = document.getElementById('paymentMethodSelect').value;
+            const titleEl = document.getElementById('pmBoxTitle');
+            const contentEl = document.getElementById('pmBoxContent');
+            const refLabel = document.getElementById('clientRefLabel');
+
+            if (method === 'Pago Móvil') {
+                titleEl.innerText = "Datos para Pago Móvil";
+                refLabel.innerText = "Referencia Bancaria (Pago Móvil)";
+                contentEl.innerHTML = `
+                    <p><strong>Banco:</strong> ${window.appState.pagoMovilBank}</p>
+                    <p><strong>Teléfono:</strong> ${window.appState.pagoMovilPhone}</p>
+                    <p><strong>Cédula/RIF:</strong> ${window.appState.pagoMovilId}</p>
+                `;
+            } else if (method === 'Transferencia') {
+                titleEl.innerText = "Datos para Transferencia Bancaria";
+                refLabel.innerText = "Número de Referencia Bancaria";
+                contentEl.innerHTML = `
+                    <p><strong>Banco/Tipo:</strong> ${window.appState.transferBank}</p>
+                    <p><strong>N° Cuenta:</strong> ${window.appState.transferAccount}</p>
+                    <p><strong>Cédula/RIF:</strong> ${window.appState.transferId}</p>
+                `;
+            } else if (method === 'Binance') {
+                titleEl.innerText = "Datos para Binance Pay";
+                refLabel.innerText = "Hash o ID de Transacción Binance";
+                contentEl.innerHTML = `
+                    <p><strong>Binance Pay ID / Correo:</strong></p>
+                    <p class="text-orange-400 font-bold">${window.appState.binanceDetails}</p>
+                `;
+            } else if (method === 'Zinli') {
+                titleEl.innerText = "Datos para Zinli";
+                refLabel.innerText = "Número de Referencia Zinli";
+                contentEl.innerHTML = `
+                    <p><strong>Correo Zinli:</strong></p>
+                    <p class="text-orange-400 font-bold">${window.appState.zinliDetails}</p>
+                `;
+            }
+        };
+
+        window.toggleDeliveryAddress = function() {
+            const method = document.getElementById('deliveryMethod').value;
+            const addressContainer = document.getElementById('addressContainer');
+            if (method === 'Delivery Urbano') {
+                addressContainer.classList.remove('hidden');
+            } else {
+                addressContainer.classList.add('hidden');
+            }
+            updateCartTotals();
+        };
+
+        function updateCartTotals() {
+            const subtotal = window.appState.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const totalUSD = subtotal;
+            const totalBs = totalUSD * window.appState.bcvRate;
+
+            document.getElementById('cartSubtotal').innerText = `$${subtotal.toFixed(2)}`;
+            document.getElementById('cartTotalUSD').innerText = `$${totalUSD.toFixed(2)} USD`;
+            document.getElementById('cartTotalBs').innerText = `${totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`;
+        }
+
+        window.checkoutWhatsApp = function() {
+            const name = document.getElementById('clientName').value.trim();
+            const idNum = document.getElementById('clientId').value.trim();
+            const phone = document.getElementById('clientPhone').value.trim();
+            const method = document.getElementById('deliveryMethod').value;
+            const address = document.getElementById('clientAddress').value.trim();
+            const paymentMethod = document.getElementById('paymentMethodSelect').value;
+            const paymentRef = document.getElementById('clientRef').value.trim();
+
+            if (!name || !idNum || !phone) {
+                alert("Por favor completa tu nombre, cédula y teléfono para procesar el pedido.");
+                return;
+            }
+
+            if (method === 'Delivery Urbano' && !address) {
+                alert("Por favor ingresa la dirección de entrega y tu ubicación GPS para el delivery.");
+                return;
+            }
+
+            if (!paymentRef) {
+                alert("Por favor ingresa la referencia o hash de pago correspondiente.");
+                return;
+            }
+
+            const subtotal = window.appState.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const totalUSD = subtotal;
+            const totalBs = totalUSD * window.appState.bcvRate;
+
+            let itemsText = "";
+            window.appState.cart.forEach(item => {
+                itemsText += `- ${item.qty}x ${item.name} ($${(item.price * item.qty).toFixed(2)})\n`;
+            });
+
+            let orderMsg = `👑 *NUEVO PEDIDO - CASTILLO DE MARCOS* 👑\n\n`;
+            orderMsg += `👤 *Cliente:* ${name}\n`;
+            orderMsg += `🆔 *Cédula:* ${idNum}\n`;
+            orderMsg += `📱 *Teléfono:* ${phone}\n`;
+            orderMsg += `🛵 *Método Entrega:* ${method}\n`;
+            if (method === 'Delivery Urbano') {
+                orderMsg += `📍 *Dirección / GPS:* ${address} *(Delivery con costo adicional)*\n`;
+            }
+            orderMsg += `💳 *Método de Pago:* ${paymentMethod}\n`;
+            orderMsg += `🔢 *Referencia / Hash:* ${paymentRef}\n\n`;
+            orderMsg += `*Detalle del Pedido:*\n${itemsText}\n`;
+            orderMsg += `*TOTAL EN USD: $${totalUSD.toFixed(2)}*\n`;
+            orderMsg += `*TOTAL EN BS: ${totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs*`;
+
+            const newOrder = {
+                id: 'ord_' + Date.now(),
+                client: name,
+                idNumber: idNum,
+                phone: phone,
+                method: method,
+                paymentMethod: paymentMethod,
+                address: address,
+                paymentRef: paymentRef,
+                items: JSON.parse(JSON.stringify(window.appState.cart)),
+                totalUSD: totalUSD,
+                timestamp: new Date().toISOString()
+            };
+            window.appState.orders.push(newOrder);
+            saveLocalData();
+
+            const url = `https://api.whatsapp.com/send?phone=${window.appState.whatsappNumber}&text=${encodeURIComponent(orderMsg)}`;
+            window.open(url, '_blank');
+
+            window.appState.cart = [];
+            updateCartUI();
+            toggleCart();
+        };
+
+        // Admin Modal & PIN
+        window.openAdminModal = function() {
+            document.getElementById('adminPinInput').value = '';
+            document.getElementById('pinError').classList.add('hidden');
+            document.getElementById('pinModal').classList.remove('hidden');
+        };
+
+        window.closePinModal = function() {
+            document.getElementById('pinModal').classList.add('hidden');
+        };
+
+        window.verifyAdminPin = function() {
+            const entered = document.getElementById('adminPinInput').value.trim();
+            if (entered === window.appState.adminPin) {
+                closePinModal();
+                openAdminPanel();
+            } else {
+                document.getElementById('pinError').classList.remove('hidden');
+            }
+        };
+
+        window.openAdminPanel = function() {
+            document.getElementById('configBcv').value = window.appState.bcvRate;
+            document.getElementById('configWhatsapp').value = window.appState.whatsappNumber;
+            document.getElementById('configPin').value = window.appState.adminPin;
+            document.getElementById('configPmBank').value = window.appState.pagoMovilBank;
+            document.getElementById('configPmPhone').value = window.appState.pagoMovilPhone;
+            document.getElementById('configPmId').value = window.appState.pagoMovilId;
+            document.getElementById('configTrBank').value = window.appState.transferBank;
+            document.getElementById('configTrAccount').value = window.appState.transferAccount;
+            document.getElementById('configTrId').value = window.appState.transferId;
+            document.getElementById('configBinance').value = window.appState.binanceDetails;
+            document.getElementById('configZinli').value = window.appState.zinliDetails;
+            renderAdminProducts();
+            document.getElementById('adminPanelModal').classList.remove('hidden');
+        };
+
+        window.closeAdminPanel = function() {
+            document.getElementById('adminPanelModal').classList.add('hidden');
+            renderCatalog();
+        };
+
+        window.saveSettings = function() {
+            const bcv = parseFloat(document.getElementById('configBcv').value);
+            const wp = document.getElementById('configWhatsapp').value.trim();
+            const pin = document.getElementById('configPin').value.trim();
+            const pmBank = document.getElementById('configPmBank').value.trim();
+            const pmPhone = document.getElementById('configPmPhone').value.trim();
+            const pmId = document.getElementById('configPmId').value.trim();
+            const trBank = document.getElementById('configTrBank').value.trim();
+            const trAccount = document.getElementById('configTrAccount').value.trim();
+            const trId = document.getElementById('configTrId').value.trim();
+            const binance = document.getElementById('configBinance').value.trim();
+            const zinli = document.getElementById('configZinli').value.trim();
+
+            if (isNaN(bcv) || bcv <= 0) {
+                alert("Ingresa una Tasa BCV válida.");
+                return;
+            }
+            if (!wp || !pin) {
+                alert("WhatsApp y PIN son obligatorios.");
+                return;
+            }
+
+            window.appState.bcvRate = bcv;
+            window.appState.whatsappNumber = wp;
+            window.appState.adminPin = pin;
+            window.appState.pagoMovilBank = pmBank;
+            window.appState.pagoMovilPhone = pmPhone;
+            window.appState.pagoMovilId = pmId;
+            window.appState.transferBank = trBank;
+            window.appState.transferAccount = trAccount;
+            window.appState.transferId = trId;
+            window.appState.binanceDetails = binance;
+            window.appState.zinliDetails = zinli;
+            
+            saveLocalData();
+
+            if (db) {
+                try {
+                    setDoc(doc(db, "settings", "general"), {
+                        bcvRate: bcv,
+                        whatsappNumber: wp,
+                        adminPin: pin,
+                        creatorPin: window.appState.creatorPin,
+                        creatorWhatsapp: window.appState.creatorWhatsapp,
+                        pagoMovilBank: pmBank,
+                        pagoMovilPhone: pmPhone,
+                        pagoMovilId: pmId,
+                        transferBank: trBank,
+                        transferAccount: trAccount,
+                        transferId: trId,
+                        binanceDetails: binance,
+                        zinliDetails: zinli
+                    });
+                } catch(e) { console.log(e); }
+            }
+
+            renderCatalog();
+            closeAdminPanel();
+            alert("¡Ajustes, Tasa BCV y métodos de pago guardados y aplicados al catálogo!");
+        };
+
+        // Creadora Modal & PIN (Greisi Morón)
+        window.openCreatorPinModal = function() {
+            document.getElementById('creatorPinInput').value = '';
+            document.getElementById('creatorPinError').classList.add('hidden');
+            document.getElementById('creatorPinModal').classList.remove('hidden');
+        };
+
+        window.closeCreatorPinModal = function() {
+            document.getElementById('creatorPinModal').classList.add('hidden');
+        };
+
+        window.verifyCreatorPin = function() {
+            const entered = document.getElementById('creatorPinInput').value.trim();
+            if (entered === window.appState.creatorPin) {
+                closeCreatorPinModal();
+                openCreatorPanel();
+            } else {
+                document.getElementById('creatorPinError').classList.remove('hidden');
+            }
+        };
+
+        window.openCreatorPanel = function() {
+            document.getElementById('configCreatorWhatsapp').value = window.appState.creatorWhatsapp;
+            document.getElementById('configCreatorPin').value = window.appState.creatorPin;
+            renderAnalytics();
+            renderWeeklyChart();
+            document.getElementById('creatorPanelModal').classList.remove('hidden');
+        };
+
+        window.closeCreatorPanel = function() {
+            document.getElementById('creatorPanelModal').classList.add('hidden');
+            renderCatalog();
+        };
+
+        window.saveCreatorSettings = function() {
+            const cWp = document.getElementById('configCreatorWhatsapp').value.trim();
+            const cPin = document.getElementById('configCreatorPin').value.trim();
+
+            if (!cWp || !cPin) {
+                alert("Todos los campos privados son obligatorios.");
+                return;
+            }
+
+            window.appState.creatorWhatsapp = cWp;
+            window.appState.creatorPin = cPin;
+            saveLocalData();
+            closeCreatorPanel();
+            alert("¡Ajustes privados de Creadora guardados correctamente!");
+        };
+
+        // Opción para limpiar/reiniciar ventas de ayer (Inicia el día limpio)
+        window.clearPreviousSales = function() {
+            if (confirm("¿Estás segura de eliminar/reiniciar las ventas anteriores para comenzar el día de hoy completamente en cero?")) {
+                const todayStr = new Date().toDateString();
+                window.appState.orders = window.appState.orders.filter(ord => {
+                    return new Date(ord.timestamp).toDateString() === todayStr;
+                });
+                saveLocalData();
+                renderAnalytics();
+                renderWeeklyChart();
+                alert("¡Registros anteriores limpiados con éxito! Las ventas de hoy inician limpias.");
+            }
+        };
+
+        window.sendCreatorWhatsAppReport = function() {
+            const orders = window.appState.orders;
+            let totalUSD = 0;
+            let pickupCount = 0;
+            let deliveryCount = 0;
+            const productSales = {};
+
+            orders.forEach(ord => {
+                totalUSD += ord.totalUSD;
+                if (ord.method === 'Retiro en local') pickupCount++;
+                else deliveryCount++;
+
+                ord.items.forEach(item => {
+                    if (!productSales[item.name]) productSales[item.name] = { qty: 0, total: 0 };
+                    productSales[item.name].qty += item.qty;
+                    productSales[item.name].total += (item.price * item.qty);
+                });
+            });
+            const totalBs = totalUSD * window.appState.bcvRate;
+
+            let reportMsg = `📊 *CORTE DIARIO - CASTILLO DE MARCOS* 📊\n`;
+            reportMsg += `_Autoría: Page by Greisi Morón_\n\n`;
+            reportMsg += `💵 *Total Ventas USD:* $${totalUSD.toFixed(2)}\n`;
+            reportMsg += `🇻🇪 *Total Ventas Bs:* ${totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs\n`;
+            reportMsg += `🛍️ *Retiros en Local:* ${pickupCount} pedidos\n`;
+            reportMsg += `🛵 *Deliveries:* ${deliveryCount} pedidos\n\n`;
+            reportMsg += `*Desglose de Productos:*\n`;
+
+            Object.keys(productSales).forEach(name => {
+                const item = productSales[name];
+                reportMsg += `• ${name}: ${item.qty} unids. ($${item.total.toFixed(2)})\n`;
+            });
+
+            const url = `https://api.whatsapp.com/send?phone=${window.appState.creatorWhatsapp}&text=${encodeURIComponent(reportMsg)}`;
+            window.open(url, '_blank');
+        };
+
+        // CRUD Productos
+        window.renderAdminProducts = function() {
+            const tbody = document.getElementById('adminProductTable');
+            tbody.innerHTML = '';
+
+            window.appState.products.forEach(prod => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-stone-950/40 transition-all";
+                tr.innerHTML = `
+                    <td class="p-3.5"><img src="${prod.image}" class="w-12 h-12 rounded-xl object-cover border border-stone-800"></td>
+                    <td class="p-3.5 font-bold text-white">${prod.name}</td>
+                    <td class="p-3.5"><span class="px-2.5 py-1 rounded-full bg-stone-950 border border-stone-800 text-xs text-orange-400">${prod.category}</span></td>
+                    <td class="p-3.5 font-bold text-orange-400">$${prod.price.toFixed(2)}</td>
+                    <td class="p-3.5 text-center">
+                        <button onclick="editProduct('${prod.id}')" class="p-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-all mr-1.5" title="Editar"><i class="fa-solid fa-pen text-xs"></i></button>
+                        <button onclick="deleteProduct('${prod.id}')" class="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-all" title="Eliminar"><i class="fa-solid fa-trash text-xs"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+
+        window.openProductModal = function(id = null) {
+            document.getElementById('editProductId').value = '';
+            document.getElementById('prodName').value = '';
+            document.getElementById('prodCategory').value = 'Hamburguesas';
+            document.getElementById('prodPrice').value = '';
+            document.getElementById('prodDesc').value = '';
+            document.getElementById('prodImageFile').value = '';
+            const preview = document.getElementById('prodImagePreview');
+            preview.src = '';
+            preview.classList.add('hidden');
+
+            if (id) {
+                document.getElementById('productModalTitle').innerText = 'Editar Producto / Extra';
+                const prod = window.appState.products.find(p => p.id === id);
+                if (prod) {
+                    document.getElementById('editProductId').value = prod.id;
+                    document.getElementById('prodName').value = prod.name;
+                    document.getElementById('prodCategory').value = prod.category;
+                    document.getElementById('prodPrice').value = prod.price;
+                    document.getElementById('prodDesc').value = prod.description;
+                    if (prod.image) {
+                        preview.src = prod.image;
+                        preview.classList.remove('hidden');
+                    }
+                }
+            } else {
+                document.getElementById('productModalTitle').innerText = 'Nuevo Producto / Extra';
+            }
+            document.getElementById('productModal').classList.remove('hidden');
+        };
+
+        window.closeProductModal = function() {
+            document.getElementById('productModal').classList.add('hidden');
+        };
+
+        window.editProduct = function(id) { openProductModal(id); };
+
+        window.deleteProduct = function(id) {
+            if (confirm("¿Estás seguro de eliminar este producto?")) {
+                window.appState.products = window.appState.products.filter(p => p.id !== id);
+                saveLocalData();
+                renderAdminProducts();
+                renderCatalog();
+                if (db) {
+                    deleteDoc(doc(db, "products", id)).catch(e => console.log(e));
+                }
+            }
+        };
+
+        let compressedImageData = "";
+        function setupImageCompression() {
+            const fileInput = document.getElementById('prodImageFile');
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 600;
+                        const MAX_HEIGHT = 600;
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > height) {
+                            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                        } else {
+                            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        compressedImageData = canvas.toDataURL('image/jpeg', 0.8);
+                        const preview = document.getElementById('prodImagePreview');
+                        preview.src = compressedImageData;
+                        preview.classList.remove('hidden');
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        window.saveProduct = function() {
+            const id = document.getElementById('editProductId').value;
+            const name = document.getElementById('prodName').value.trim();
+            const category = document.getElementById('prodCategory').value;
+            const price = parseFloat(document.getElementById('prodPrice').value);
+            const desc = document.getElementById('prodDesc').value.trim();
+
+            if (!name || isNaN(price) || price <= 0) {
+                alert("Por favor ingresa nombre y precio válido.");
+                return;
+            }
+
+            let imageUrl = compressedImageData;
+            if (!imageUrl && id) {
+                const existing = window.appState.products.find(p => p.id === id);
+                if (existing) imageUrl = existing.image;
+            }
+            if (!imageUrl) imageUrl = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop&q=60";
+
+            if (id) {
+                const prod = window.appState.products.find(p => p.id === id);
+                if (prod) {
+                    prod.name = name;
+                    prod.category = category;
+                    prod.price = price;
+                    prod.description = desc;
+                    prod.image = imageUrl;
+                }
+            } else {
+                window.appState.products.push({
+                    id: 'prod_' + Date.now(),
+                    name, category, price, description: desc, image: imageUrl
+                });
+            }
+
+            saveLocalData();
+            renderAdminProducts();
+            renderCatalog();
+            closeProductModal();
+            compressedImageData = "";
+
+            if (db) {
+                try {
+                    const targetId = id || ('prod_' + Date.now());
+                    const prodData = window.appState.products.find(p => p.id === targetId);
+                    setDoc(doc(db, "products", targetId), prodData);
+                } catch(e) { console.log(e); }
+            }
+        };
+
+        // Analíticas
+        function renderAnalytics() {
+            const orders = window.appState.orders;
+            let totalUSD = 0;
+            let pickupCount = 0;
+            let deliveryCount = 0;
+            const productSales = {};
+
+            orders.forEach(ord => {
+                totalUSD += ord.totalUSD;
+                if (ord.method === 'Retiro en local') pickupCount++;
+                else deliveryCount++;
+
+                ord.items.forEach(item => {
+                    if (!productSales[item.name]) {
+                        productSales[item.name] = { category: getProductCategory(item.name), qty: 0, total: 0 };
+                    }
+                    productSales[item.name].qty += item.qty;
+                    productSales[item.name].total += (item.price * item.qty);
+                });
+            });
+
+            const totalBs = totalUSD * window.appState.bcvRate;
+
+            document.getElementById('analyticsTotalUSD').innerText = `$${totalUSD.toFixed(2)}`;
+            document.getElementById('analyticsTotalBs').innerText = `${totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`;
+            document.getElementById('analyticsPickupCount').innerText = `${pickupCount} pedidos`;
+            document.getElementById('analyticsDeliveryCount').innerText = `${deliveryCount} pedidos`;
+
+            const tbody = document.getElementById('analyticsProductTable');
+            tbody.innerHTML = '';
+
+            const keys = Object.keys(productSales);
+            if (keys.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-stone-500 text-xs">No hay ventas registradas aún.</td></tr>`;
+                return;
+            }
+
+            keys.forEach(prodName => {
+                const data = productSales[prodName];
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 font-medium text-white">${prodName}</td>
+                    <td class="p-3 text-xs text-orange-400">${data.category}</td>
+                    <td class="p-3 text-center font-bold text-white">${data.qty}</td>
+                    <td class="p-3 text-right font-bold text-orange-400">$${data.total.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function getProductCategory(name) {
+            const p = window.appState.products.find(item => item.name === name);
+            return p ? p.category : 'General';
+        }
+
+        // Gráfica Semanal con Chart.js
+        let weeklyChartInstance = null;
+        function renderWeeklyChart() {
+            const ctx = document.getElementById('weeklySalesChart').getContext('2d');
+            
+            const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+            const dailyTotals = [0, 0, 0, 0, 0, 0, 0];
+
+            window.appState.orders.forEach(ord => {
+                const d = new Date(ord.timestamp);
+                let dayIndex = d.getDay() - 1;
+                if (dayIndex === -1) dayIndex = 6;
+                dailyTotals[dayIndex] += ord.totalUSD;
+            });
+
+            if (weeklyChartInstance) {
+                weeklyChartInstance.destroy();
+            }
+
+            weeklyChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: days,
+                    datasets: [{
+                        label: 'Ventas Semanales ($ USD)',
+                        data: dailyTotals,
+                        backgroundColor: '#f97316',
+                        borderColor: '#ea580c',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#e7e5e4', font: { family: 'Outfit' } } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#a8a29e' }, grid: { color: '#292524' } },
+                        y: { ticks: { color: '#a8a29e' }, grid: { color: '#292524' } }
+                    }
+                }
+            });
+        }
+
+        // PDF Reportes Diario y Semanal
+        window.generatePDFReport = function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const orders = window.appState.orders;
+            let totalUSD = 0;
+            let pickupCount = 0;
+            let deliveryCount = 0;
+            const productSales = {};
+
+            orders.forEach(ord => {
+                totalUSD += ord.totalUSD;
+                if (ord.method === 'Retiro en local') pickupCount++;
+                else deliveryCount++;
+
+                ord.items.forEach(item => {
+                    if (!productSales[item.name]) productSales[item.name] = { qty: 0, total: 0 };
+                    productSales[item.name].qty += item.qty;
+                    productSales[item.name].total += (item.price * item.qty);
+                });
+            });
+            const totalBs = totalUSD * window.appState.bcvRate;
+
+            doc.setFillColor(15, 23, 42);
+            doc.rect(0, 0, 210, 40, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(20);
+            doc.setFont("helvetica", "bold");
+            doc.text("Castillo de Marcos - Reporte Diario de Creadora", 14, 22);
+
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(168, 162, 158);
+            doc.text(`Fecha: ${new Date().toLocaleDateString()} | Tasa BCV: ${window.appState.bcvRate.toFixed(2)} Bs/$`, 14, 32);
+
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "bold");
+            doc.text("Resumen General", 14, 52);
+
+            doc.autoTable({
+                startY: 58,
+                head: [['Concepto', 'Valor']],
+                body: [
+                    ['Total Ventas USD', `$${totalUSD.toFixed(2)}`],
+                    ['Total Ventas Bolívares', `${totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`],
+                    ['Retiros en Local', `${pickupCount} pedidos`],
+                    ['Deliveries Urbanos', `${deliveryCount} pedidos`]
+                ],
+                theme: 'grid',
+                headStyles: { fillColor: [249, 115, 22] }
+            });
+
+            const finalY = doc.lastAutoTable.finalY + 12;
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "bold");
+            doc.text("Desglose de Productos Vendidos", 14, finalY);
+
+            const productRows = Object.keys(productSales).map(name => {
+                const item = productSales[name];
+                return [name, item.qty, `$${item.total.toFixed(2)}`];
+            });
+
+            doc.autoTable({
+                startY: finalY + 6,
+                head: [['Producto', 'Cantidad Vendida', 'Total Generado (USD)']],
+                body: productRows,
+                theme: 'striped',
+                headStyles: { fillColor: [41, 37, 36] }
+            });
+
+            const pageCount = doc.internal.getNumberOfPages();
+            for(let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(9);
+                doc.setTextColor(150);
+                doc.text("Castillo de Marcos &bull; PAGE BY GREISI MORÓN", 14, 285);
+            }
+
+            doc.save(`Reporte_Diario_${new Date().toISOString().slice(0,10)}.pdf`);
+        };
+
+        window.generateWeeklyPDFReport = function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const orders = window.appState.orders;
+            let totalUSD = 0;
+            const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+            const dailyTotals = [0, 0, 0, 0, 0, 0, 0];
+
+            orders.forEach(ord => {
+                totalUSD += ord.totalUSD;
+                const d = new Date(ord.timestamp);
+                let dayIndex = d.getDay() - 1;
+                if (dayIndex === -1) dayIndex = 6;
+                dailyTotals[dayIndex] += ord.totalUSD;
+            });
+            const totalBs = totalUSD * window.appState.bcvRate;
+
+            doc.setFillColor(15, 23, 42);
+            doc.rect(0, 0, 210, 40, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(20);
+            doc.setFont("helvetica", "bold");
+            doc.text("Castillo de Marcos - Reporte Semanal", 14, 22);
+
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(168, 162, 158);
+            doc.text(`Generado: ${new Date().toLocaleDateString()} | Tasa BCV: ${window.appState.bcvRate.toFixed(2)} Bs/$`, 14, 32);
+
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "bold");
+            doc.text("Resumen de Ventas por Día de la Semana", 14, 52);
+
+            const weeklyRows = days.map((dayName, idx) => {
+                return [dayName, `$${dailyTotals[idx].toFixed(2)}`, `${(dailyTotals[idx] * window.appState.bcvRate).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`];
+            });
+
+            doc.autoTable({
+                startY: 58,
+                head: [['Días de la Semana', 'Total (USD)', 'Total (Bs)']],
+                body: weeklyRows,
+                theme: 'grid',
+                headStyles: { fillColor: [249, 115, 22] }
+            });
+
+            const finalY = doc.lastAutoTable.finalY + 12;
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "bold");
+            doc.text(`Total Acumulado Semanal: $${totalUSD.toFixed(2)} USD (${totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs)`, 14, finalY);
+
+            doc.save(`Reporte_Semanal_${new Date().toISOString().slice(0,10)}.pdf`);
+        };
+    </script>
+</body>
+</html>
